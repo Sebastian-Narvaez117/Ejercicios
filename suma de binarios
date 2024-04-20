@@ -1,0 +1,103 @@
+/**
+ * @file sumabinarios.c++
+ * @author Sebastian Narvaez
+ * @brief ingresar dos numeros binarios y sumarlos
+ * @version 0.1
+ * @date 2024-02-17
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+#include<iostream>
+#include<cstring>
+using namespace std;
+
+void ingresodenumeros(int limite, char* binario);
+int comprobarbinario(char *arreglo);
+int convertiradecimal(char* binario);
+void convertirabinario(int suma, char*resultado);
+void sumabinarios(char* binario1, char* binario2, char* rta);
+
+int main(){
+    int limite = 32;
+    char binario1[limite];
+    char binario2[limite];
+    char suma[limite];
+   ingresodenumeros(limite,binario1);
+   ingresodenumeros(limite,binario2);
+   sumabinarios(binario1,binario2,suma);
+   cout<<"La suma de tus numeros es :"<<suma<< endl;
+   cout<<"El primer numero que ingresaste en binario es :  "<<convertiradecimal(binario1)<<"  en decimal"<<endl;
+   cout<<"El segundo numero que ingresaste en binario es :  "<<convertiradecimal(binario2)<<"  en decimal"<<endl;
+   cout << "Por consecuente la suma es : "<<convertiradecimal(suma)<<" en decimal"<<endl;
+   cout << "\t\tPrograma desarrollado por Sebastian Narvaez"<<endl;
+
+}
+
+
+void ingresodenumeros( int limite , char* binario){
+    do{
+    cout<<"Ingrese un numero binario: "<< endl;
+    cin >>binario;
+    }while(comprobarbinario(binario) != 1);
+
+}
+
+int comprobarbinario(char *arreglo){
+    int tamanio=strlen(arreglo);
+    for(int i=0;i < tamanio;i++){
+        if(arreglo[i] != '1' && arreglo[i]!='0'){
+            cout<< "Los numeros binarios constan de 0 y 1"<< endl;
+            return 0; 
+        
+        }
+    }
+    return 1;
+}
+
+
+int convertiradecimal(char* binario){
+    int conversion = 0;
+    int tamanio = strlen(binario);
+    for(int i =0;i < tamanio;i++){
+        conversion =2 * conversion + (binario[i]-'0');
+    }
+    return conversion;
+
+}
+
+
+void sumabinarios(char* binario1, char* binario2, char* rta){
+    int numero1=convertiradecimal(binario1);
+    int numero2=convertiradecimal(binario2);
+    int suma = numero1 + numero2;
+    convertirabinario(suma,rta);
+    
+
+}
+
+
+
+void convertirabinario(int suma, char*resultado ){
+     int posicion = 0;
+    while (suma > 0) {
+        resultado[posicion++] = (suma % 2) + '0';
+        suma = suma / 2;
+    }
+
+    if (posicion == 0) {
+        resultado[posicion++] = '0';
+    }
+
+    resultado[posicion] = '\0';
+
+    for (int i = 0, j = posicion - 1; i < j; i++, j--) {
+        char temp = resultado[i];
+        resultado[i] = resultado[j];
+        resultado[j] = temp;
+    }
+   
+}
+    
+    
+
