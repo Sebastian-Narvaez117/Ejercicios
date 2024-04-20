@@ -1,0 +1,218 @@
+/**
+ * @file facturaLosvecinos.c
+ * @author Sebastian Narvaez
+ * @brief  Generar un factura y guardarla como un archivo
+ * @version 0.1
+ * @date 2024-03-01
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+struct Factura {
+    int numero;
+    float subtotal;
+    int tasaIva;
+    float totalIva;
+    float total;
+};
+
+struct Cliente {
+    int Id;
+    char *nombre;
+    char *apellido;
+    int *dni;
+    char *correo;
+    char *direccion;
+};
+
+struct Item {
+    int numeroproductos;
+    int codigo;
+    char *descripcion;
+    int cantidad;
+    float precioUnitario;
+    float total;
+};
+
+
+struct NumeracionFactura {
+    int numeroFactura;
+};
+
+void obtenerFechaynumerofactura(FILE *file, struct NumeracionFactura *numeracion);
+void Presentarfactura(FILE *file, struct Cliente cliente, struct Item productos[], int numProductos, struct Factura factura, struct NumeracionFactura *numeracion);
+struct Factura facturadesalida(struct Item productos[], int numProductos);
+struct Cliente ingresoDatos();
+struct Item listaproductos();
+char *ingresoTexto(char *mensaje);
+void generarFacturas(int numFacturas, struct NumeracionFactura *numeracion);
+
+
+int main() {
+    int numFacturas;
+
+    printf("Ingrese el numero de facturas que desea generar: ");
+    scanf("%d", &numFacturas);
+    getchar(); 
+
+    struct NumeracionFactura numeracion = {1};
+    generarFacturas(numFacturas, &numeracion);
+
+    return 0;
+}
+
+
+void generarFacturas(int numFacturas, struct NumeracionFactura *numeracion) {
+    for (int facturaNum = 1; facturaNum <= numFacturas; facturaNum++) {
+        char nombreArchivo[20];
+        sprintf(nombreArchivo, "facturaLosVecinos_%d.txt", numeracion->numeroFactura);
+
+        FILE *file = fopen(nombreArchivo, "w");
+
+        if (file == NULL) {
+            printf("No se pudo abrir el archivo para la factura %d.\n", numeracion->numeroFactura);
+            exit(1);
+        }
+
+        struct Cliente cliente = ingresoDatos();
+        struct Item productos[10]; 
+        int numProductos = 0; 
+        
+        char respuesta;
+        do {
+            productos[numProductos] = listaproductos();
+            numProductos++;
+
+            printf("Desea ingresar otro producto? (S/N): ");
+            scanf(" %c", &respuesta);
+            getchar();  
+        } while (respuesta == 'S' || respuesta == 's');
+
+        struct Factura factura = facturadesalida(productos, numProductos);
+        
+        Presentarfactura(file, cliente, productos, numProductos, factura, numeracion);
+
+        fclose(file);
+
+        numeracion->numeroFactura++;
+    }
+}
+
+void Presentarfactura(FILE *file, struct Cliente cliente, struct Item productos[], int numProductos, struct Factura factura, struct NumeracionFactura *numeracion){
+    fprintf(file, "================================================================================================\n");
+    fprintf(file, "\t\t\t\t\tFACTURA DE VENTA\n");
+    fprintf(file, "\t\t\t\t\tMinimarket Los vecinos \n");
+    fprintf(file, "================================================================================================\n");
+    obtenerFechaynumerofactura(file, numeracion);
+    fprintf(file, "Cliente\n");
+    fprintf(file, "================================================================================================\n");
+    fprintf(file, "Nombres: %s %s\n", cliente.nombre, cliente.apellido);
+    fprintf(file, "Cedula: %d \n", *cliente.dni);
+    fprintf(file, "Correo : %s \n", cliente.correo);
+    fprintf(file, "Direccion : %s\n", cliente.direccion);
+    fprintf(file, "ID : %d\n", cliente.Id);
+    fprintf(file, "================================================================================================\n");
+    fprintf(file, "LISTADO DE PRODUCTOS\n");
+    fprintf(file, "================================================================================================\n");
+    fprintf(file, "Codigo\t\t\tCantidad\t\t\tDescripcion\tPrecio U.\tTotal\n");
+    fprintf(file, "================================================================================================\n");
+    
+    for (int i = 0; i < numProductos; i++) {
+        fprintf(file, "%d\t\t\t%d\t\t\t\t%s\t\t%.2f\t\t%.2f\n", productos[i].codigo, productos[i].cantidad,
+                productos[i].descripcion, productos[i].precioUnitario, productos[i].total);
+    }
+    fprintf(file, "================================================================================================\n");
+    fprintf(file, "Subtotal neto : %.2f  USD\n", factura.subtotal);
+    fprintf(file, "================================================================================================\n");
+    fprintf(file, "IVA(%d%%): %.2f USD\n", factura.tasaIva, factura.totalIva);
+    fprintf(file, "================================================================================================\n");
+    fprintf(file, "Total a pagar : %.2f USD\n", factura.total);
+    fprintf(file, "------------------------------------------------------------------------------------------------\n");
+    fprintf(file, "\t\t\t\t!!!!!!Gracias por tu compra!!!!!!\n");
+    fprintf(file, "------------------------------------------------------------------------------------------------\n");
+    fprintf(file, "================================================================================================\n");
+    fprintf(file, "\t\t\tProgramado por : Carlos Guajala, Sebastian Narvaez");
+}
+
+
+void obtenerFechaynumerofactura(FILE *file, struct NumeracionFactura *numeracion) {
+    time_t timeSeconds = time(NULL);
+    struct tm *currentDate = localtime(&timeSeconds);
+    char currentDateTexto[50];
+    strftime(currentDateTexto, 50, "%Y--%m--%d--%X", currentDate);
+    fprintf(file, "Fecha de emision:  %s", currentDateTexto);
+    fprintf(file, "\nNro.factura : %d\n\n", numeracion->numeroFactura);
+}
+
+struct Factura facturadesalida(struct Item productos[], int numProductos) {
+    struct Factura factura;
+    factura.subtotal = 0;
+
+    for (int i = 0; i < numProductos; i++) {
+        factura.subtotal += productos[i].total;
+    }
+
+    printf("Ingrese el porcentaje de IVA: ");
+    scanf("%d", &factura.tasaIva);
+
+    factura.totalIva = (factura.tasaIva / 100.0) * factura.subtotal;
+    factura.total = factura.subtotal + factura.totalIva;
+
+    return factura;
+}
+
+struct Item listaproductos() {
+    struct Item producto;
+    
+    printf("Ingrese el codigo del producto : ");
+    scanf("%d", &producto.codigo);
+    getchar();
+    
+    printf("Ingrese la cantidad del producto : ");
+    scanf("%d", &producto.cantidad);
+    getchar();
+    
+    producto.descripcion = ingresoTexto("Ingrese el nombre del producto : ");
+    
+    printf("Ingrese el precio unitario del producto : ");
+    scanf("%f", &producto.precioUnitario);
+    
+    producto.total = producto.precioUnitario * producto.cantidad;
+    
+    return producto;
+}
+
+struct Cliente ingresoDatos() {
+    struct Cliente cliente;
+    
+    printf("\nIngrese el Id del usuario: ");
+    scanf("%d", &cliente.Id);
+    getchar();
+    
+    cliente.nombre = ingresoTexto("Ingrese los nombres del usuario: ");
+    cliente.apellido = ingresoTexto("Ingrese sus apellidos: ");
+    
+    printf("Ingrese el dni del usuario: ");
+    cliente.dni = (int*)malloc(sizeof(int));
+    scanf("%d", cliente.dni);
+    getchar();
+    
+    cliente.correo = ingresoTexto("Ingrese el correo del usuario: ");
+    cliente.direccion = ingresoTexto("Ingrese la direccion del usuario: ");
+    
+    return cliente;
+}
+
+char *ingresoTexto(char *mensaje) {
+    char *texto = (char *)malloc(50 * sizeof(char));
+    printf("%s", mensaje);
+    fgets(texto, 50 * sizeof(char), stdin);
+    texto[strlen(texto) - 1] = '\0';
+    return texto;
+}
