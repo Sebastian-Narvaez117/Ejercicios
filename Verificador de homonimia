@@ -1,0 +1,112 @@
+/**
+ * @file homonimia.c++
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-02-19
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+#include <iostream>
+#include <cstring>
+#include <cctype>
+using namespace std;
+
+class Persona {
+private:
+    string nombre1;
+    string nombre2;
+    string apellido1;
+    string apellido2;
+
+public:
+    Persona() : nombre1(""), nombre2(""), apellido1(""), apellido2("") {}
+
+    void ingresarDatosPersonales(int numeroPersona) {
+        cout << "Ingrese ambos nombres  para Persona " << numeroPersona << ": ";
+        cin >> nombre1 >> nombre2;
+        
+        cout << "Ingrese ambos apellidos para Persona " << numeroPersona << ": ";
+        cin >> apellido1 >> apellido2;
+    }
+
+    void convertirAMayusculas() {
+        for (char &name1 : nombre1) {
+            name1 = toupper(name1);
+        }
+
+        for (char &name2 : nombre2) {
+            name2 = toupper(name2);
+        }
+
+        for (char &apelido1 : apellido1) {
+            apelido1 = toupper(apelido1);
+        }
+
+        for (char &apelido2 : apellido2) {
+            apelido2 = toupper(apelido2);
+        }
+    }
+
+    bool sonHomonimos(const Persona& otraPersona) const {
+        return (nombre1 == otraPersona.nombre1) && (nombre2 == otraPersona.nombre2) &&
+               (apellido1 == otraPersona.apellido1) && (apellido2 == otraPersona.apellido2);
+    }
+
+    void mostrarDatosPersonales() const {
+        cout << nombre1 << " " << nombre2 << " " << apellido1 << " " << apellido2;
+    }
+};
+
+class GrupoPersonas {
+private:
+    Persona personas[5];
+
+public:
+    void ingresarNombresYApellidos() {
+        for (int i = 0; i < 5; i++) {
+            personas[i].ingresarDatosPersonales(i + 1);
+        }
+    }
+
+    void verificarHomonimia() const {
+        for (int i = 0; i < 5; i++) {
+            for (int j = i + 1; j < 5; j++) {
+                if (personas[i].sonHomonimos(personas[j])) {
+                    cout << "\nExiste homonimia entre Persona " << i + 1 << " y Persona " << j + 1;
+                }
+            }
+        }
+    }
+
+    void presentarNombres() const {
+        cout << "\n\nNombre y apellido de cada persona:\n";
+        for (int i = 0; i < 5; i++) {
+            cout << "Persona " << i + 1 << ": ";
+            personas[i].mostrarDatosPersonales();
+            cout << endl;
+        }
+    }
+
+    void convertirNombresYApellidosAMayusculas() {
+        for (int i = 0; i < 5; i++) {
+            personas[i].convertirAMayusculas();
+        }
+    }
+};
+
+int main() {
+    system("@cls||clear");
+
+    GrupoPersonas grupo;
+    cout << "\t\t\tBIENVENIDOS A NUESTRO PROGRAMA \n";
+    grupo.ingresarNombresYApellidos();
+    grupo.convertirNombresYApellidosAMayusculas();
+    grupo.verificarHomonimia();
+    grupo.presentarNombres();
+
+    cout << "\nGRACIAS POR USAR NUESTRO PROGRAMA\nIntegrantes:\n\t\tCarlos Guajala \n\t\tRoberto Lliguin \n\t\tSebastian Narvaez\n ";
+
+    return 0;
+}
