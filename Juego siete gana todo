@@ -1,0 +1,103 @@
+/**
+ * @file siete.c++
+ * @author Sebastian Narvaez, Carlos Guajala, Roberto Lliguin
+ * @brief juego del sietegana todo
+ * @version 0.1
+ * @date 2024-02-14
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+
+class Dado {
+private:
+    int lados;
+
+public:
+    Dado(int lados = 6) : lados(lados) {}
+
+    int lanzar() const {
+        return rand() % lados + 1;
+    }
+};
+
+class JuegoDeDados {
+private:
+    Dado dadoJugador;
+    Dado dadoComputadora;
+    int dineroJugador;
+    int dineroComputadora;
+
+public:
+    JuegoDeDados() : dineroJugador(10), dineroComputadora(10) {}
+
+    void jugar() {
+        srand((time(NULL))); 
+        int acumulado = dineroJugador + dineroComputadora;
+
+        cout << "Dinero del Jugador: $" << dineroJugador << endl;
+        cout << "Dinero de la Computadora: $" << dineroComputadora << endl;
+        
+
+        do {
+       
+            int resultado_dadoJugador1 = dadoJugador.lanzar();
+            int resultado_dadoJugador2 = dadoJugador.lanzar();
+
+            int suma_resultadosJugador = resultado_dadoJugador1 + resultado_dadoJugador2;
+
+            int resultado_dadoComputadora1 = dadoComputadora.lanzar();
+            int resultado_dadoComputadora2 = dadoComputadora.lanzar();
+
+       
+            int suma_resultadosComputadora = resultado_dadoComputadora1 + resultado_dadoComputadora2;
+
+            cout << "La suma de los dados del Jugador es: " << suma_resultadosJugador << endl;
+            cout << "La suma de los dados de la Computadora es: " << suma_resultadosComputadora << endl;
+
+            if (suma_resultadosJugador == 7) {
+              
+                cout << "El Jugador gana " << endl;
+                cout << "El jugador gana el acumulado"<<endl;
+                cout << "Jugador gana : $" << acumulado << endl;
+                break;
+            } else if (suma_resultadosComputadora == 7) {
+              
+                cout << "La Computadora gana" << endl;
+                cout << "La computadora gana el acumulado"<<endl;
+                cout << "La Computadora: $" << acumulado<<endl;
+                break;
+            } else {
+                char continuar;
+                cout << "Nadie gana. Quieres seguir jugando? (S/N): ";
+                cin >> continuar;
+               
+                acumulado = acumulado + acumulado;
+
+                if (continuar != 'S' && continuar != 's') {
+                    break; 
+                }
+            }
+
+         
+          
+
+        } while (true);
+    }
+};
+
+int main() {
+    system("@cls||clear");
+    JuegoDeDados juego;
+    juego.jugar();
+    
+
+    return 0;
+}
+
